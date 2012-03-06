@@ -1,0 +1,6 @@
+#!/bin/bash
+cd thrulay-0.9
+./configure
+make
+cp src/thrulay ..
+cp src/thrulayd ..
