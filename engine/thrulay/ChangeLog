@@ -1,0 +1,582 @@
+2006-08-20 19:49  fedemp
+
+	* TODO: Close done items.
+
+2006-08-20 19:46  fedemp
+
+	* src/client.c: Use quantiles to report delay and jitter instead of
+	  min/max/avg. In verbose mode, min/max/avg are also shown in
+	  reports.  Two quantile sequences are kept for each stream (one
+	  for per interval reports and one for final reports) as well as a
+	  sequence for global final statistics -unless just one stream is
+	  used, in which case only two sequences are kept.
+
+	  Added a new function (required_quantile_seqs) and two #defines to
+	  handle quantile sequence numbers.
+
+	  Added a new error code for errors in the quantile algorithm.
+
+2006-08-20 15:56  fedemp
+
+	* src/server.c: Updated calls to quantile functions (new sequence
+	  number parameter, which is always 0 in the server).
+
+2006-08-20 15:54  fedemp
+
+	* src/: reporting.c, reporting.h: Extend quantile functions so that
+	  more than 1 sequences can be handled in parallel (required to
+	  compute delay and jitter in the thrulay client if multiple
+	  streams are used). Most quantile functions now have an extra
+	  parameter to specify what sequence must be modified.
+	  quantile_init has an extra parameter to set the number of
+	  sequences to be used.
+
+2006-08-19 22:56  fedemp
+
+	* src/: server.c, server.h: Additional documentation and use
+	  'const' wherever possible in the API.
+
+2006-08-19 21:21  fedemp
+
+	* thrulay.spec.in: Updated for recent releases of rpmbuild.
+
+2006-08-19 21:21  fedemp
+
+	* src/thrulayd.c: Updated to use return codes from the thrulay
+	  server functions.
+
+2006-08-19 21:20  fedemp
+
+	* src/: server.c, server.h: Return codes added to all server API
+	  functions. Calls to exit() inside the library have been replaced
+	  with return codes. Before daemonizing, calls to
+	  error(ERR_FATAL,...) have been replaced with return codes After
+	  daemonizing, calls to exit() have been replaced as well with
+	  return codes (most of which will not be accessible unless the low
+	  level thrulay_server_process_client function is used).
+
+	  Additional checks replacing assert() calls and unchecked error
+	  conditions.  New function, thrulay_server_strerror, to retrieve
+	  descriptions of error return codes.
+
+	  Documentation extended. New function in server.c, tcp_test
+	  (equivalent to udp_test).
+
+2006-08-19 16:58  fedemp
+
+	* src/reporting.c: Report just the 5 metrics in the draft.
+
+2006-08-19 16:54  fedemp
+
+	* src/thrulay.c: Check return codes of the client interface.
+
+2006-08-19 16:53  fedemp
+
+	* src/: client.c, client.h, util.c: Return codes have been added to
+	  most of the client API functions.  New function for the client
+	  API: thrulay_client_strerror. A new array of char*,
+	  thrulay_client_error_s, holds the error strings, that can be
+	  retrieved using thrulay_client_strerror. As a side effect, some
+	  asserts have been removed and additional checks have been
+	  introduced.  Documentation of the API has been improved a bit.
+
+	  The idea has been replacing error(ERR_FATAL,...) calls with
+	  return codes that can be handled by the application using
+	  libthrulay, as it does not seem very polite to exit() inside the
+	  library without giving any opportunity of retrying or somehow
+	  handling the error.
+
+	  See bwlib for an example in which bwctl control error messages
+	  are generated. Another example is the thrulay command line tools.
+
+2006-08-19 16:52  fedemp
+
+	* src/server.c: Report just the 5 metrics from the draft unless
+	  verbose output is requested.
+
+2006-08-19 01:16  fedemp
+
+	* src/server.c: Include sys/select.h only if available (and assume
+	  select() is defined somewhere else -sys/time.h for example on
+	  some HP-UX).
+
+	  (udp_test): removed local variable graceful_termination, as it is
+	  not used.
+
+2006-08-19 01:14  fedemp
+
+	* src/client.c: (thrulay_udp_init): removed local variable addrlen,
+	  as it is not used anymore.
+
+	  (thrulay_tcp_start): use socklen_t instead of unsigned int.
+
+2006-08-19 01:10  fedemp
+
+	* configure.ac, src/Makefile.am: Use GCC style C standard and
+	  warning flags only when gcc is detected.
+
+2006-08-18 17:39  fedemp
+
+	* bootstrap.sh: set +x before running the autotools chain.
+
+2006-08-18 17:38  fedemp
+
+	* src/client.c: Suppress output if verbosity < 0.
+
+2006-08-18 17:37  fedemp
+
+	* src/server.c: Use PRIu64 for uint64_t variables in printf so as
+	  to avoid warnings on 64-bit platforms.
+
+2006-08-18 10:55  fedemp
+
+	* thrulay.spec.in: spec file for thrulay RPM packages.
+
+2006-08-17 21:52  fedemp
+
+	* src/: reporting.c, reporting.h: Better comments and Doxygen tags.
+
+2006-08-17 21:51  fedemp
+
+	* src/: client.c, client.h: Doxygen tags and new initialization
+	  interface.
+
+2006-08-17 21:50  fedemp
+
+	* src/thrulayd.c: Return 0 and fix for missing header warning.
+
+2006-08-17 21:49  fedemp
+
+	* src/thrulay.c: Updated to new initialization interface.
+
+2006-08-17 21:48  fedemp
+
+	* src/: server.c, server.h: A few tags for doxygen. Some return
+	  codes for the API.
+
+2006-08-17 14:06  fedemp
+
+	* doc/Doxyfile: A doxygen configuration file for thrulay.
+
+2006-08-17 14:04  fedemp
+
+	* configure.ac: Disable strippping of binaries on Solaris systems.
+
+2006-08-16 21:47  fedemp
+
+	* configure.ac, src/util.c: The ad hoc syslog system now handles
+	  unrestricted format strings.
+
+	  Implementation of getrusage based on native Windows system calls.
+
+2006-08-16 20:58  fedemp
+
+	* configure.ac, src/client.c, src/server.c: Fixes for clean
+	  compilation with MinGW32.
+
+2006-08-16 19:28  fedemp
+
+	* src/: server.c, server.h: Support for joining to a multicast
+	  group in UDP tests (new function: is_multicast).
+
+	  In functions quantile_alg_error and udp_test: Report errors in
+	  the quantile algorithm only when packets_total > 0.
+
+2006-08-16 19:19  fedemp
+
+	* src/: client.c, client.h: Support for sending test blocks to a
+	  multicast group with a given TTL.
+
+	  Fixed RANDOM_MAX issue for Windows.
+
+2006-08-16 19:11  fedemp
+
+	* configure.ac: Rearrangement of checks for multicast structs.
+
+2006-08-16 19:11  fedemp
+
+	* doc/: thrulay.1, thrulayd.8: New command line options for
+	  multicast.
+
+2006-08-16 19:10  fedemp
+
+	* src/: thrulay.c, thrulayd.c: Process new command line options for
+	  multicast support.
+
+2006-08-15 20:54  fedemp
+
+	* src/assertd.c: Include config.h.
+
+2006-08-15 20:11  fedemp
+
+	* src/: server.c, server.h: Changes to enable cross-compilation to
+	  Windows (XP or later) using MinGW32. Comments for the
+	  non-blocking loop. In windows, instead of using fork, a thread is
+	  spawned for serving each client.
+
+2006-08-15 19:59  fedemp
+
+	* src/client.c: Updated to enable cross-compilation of the client
+	  for Windows (XP and later) using MinGW32.
+
+2006-08-15 19:53  fedemp
+
+	* src/: util.c, util.h: Implementation of functions sometimes
+	  missing (MinGW32), including inet_ntop and gai_strerror. Fix for
+	  using recv/send instead of read/write on sockets. Implementation
+	  of simple ad hoc syslog mechanism (.log file) for systems without
+	  syslog.
+
+2006-08-15 19:47  fedemp
+
+	* configure.ac: Checks for additional headers and functions (most
+	  of them for MinGW32). Checks for multicast structs. New
+	  --enable-multicast option.
+
+2006-08-15 19:44  fedemp
+
+	* src/assertd.c: Use ad hoc implementation of syslog when missing
+	  (Win32).
+
+2006-08-11 17:58  fedemp
+
+	* src/: client.c, client.h, server.c, server.h, thrulay.c,
+	  thrulayd.c: Use -v for verbosity and -V for version. Verbosity
+	  parameter added to the client and server API.
+
+2006-08-11 17:57  fedemp
+
+	* src/reporting.c: Report metrics as in the reporting draft.
+
+2006-08-10 20:07  fedemp
+
+	* src/util.c: Use sockaddr_storage instead of a 128 bytes long
+	  array.
+
+2006-08-10 20:06  fedemp
+
+	* src/thrulay.c: Help on default block sizes fixed.
+
+2006-08-10 18:58  fedemp
+
+	* TODO, configure.ac, src/client.c, src/reporting.c, src/thrulay.c:
+	  .spec.in for RPMs and default block size updated to 64kB.
+
+2006-08-01 13:01  fedemp
+
+	* src/reporting.c: Additional comments and some fixes for the
+	  sample reporting main().
+
+2006-07-26 20:30  fedemp
+
+	* ChangeLog: Updated.
+
+2006-07-26 20:29  fedemp
+
+	* src/reporting.c: Get sample data from a file in the reporting
+	  main()
+
+2006-06-29 19:24  fedemp
+
+	* src/server.c: Ooops, removed extra call to thrulay_server_init.
+
+2006-06-29 19:05  fedemp
+
+	* src/: client.c, client.h, thrulay.c: Client API function names
+	  changed so that there are no conflicts/confussion with server
+	  functions.
+
+2006-06-29 19:03  fedemp
+
+	* src/: server.c, server.h, thrulayd.c, thrulayd.h: New thrulay
+	  server API added. thrulayd.c parses command line options and
+	  relies on the server API for anything else. acl_allow_add added
+	  to the server API, as well as defines for default port and window
+	  size.
+
+2006-06-28 18:00  fedemp
+
+	* src/: thrulay.c, thrulay.h, thrulayd.c, thrulayd.h: thrulay.c and
+	  thrulayd.c now depend on libthrulay to implement the client and
+	  server command line tools.
+
+2006-06-28 17:50  fedemp
+
+	* src/: client.c, client.h, server.c, server.h: New separate files
+	  for client and server API.
+
+2006-06-28 15:11  fedemp
+
+	* bootstrap.sh, configure.ac, src/Makefile.am: Use libtool to build
+	  libthrulay.
+
+2006-06-18 19:30  fedemp
+
+	* README.release, src/Makefile.am: Update release steps now that
+	  the "make dist..." objectives generated by automake can be used.
+
+2006-06-18 18:49  fedemp
+
+	* configure.ac, src/assertd.c, src/thrulay.c, src/util.c,
+	  src/util.h: Made the minimal changes required to get the client
+	  to work on Win32 (cross-compiled with MinGW32).
+
+2006-06-15 22:03  fedemp
+
+	* src/thrulayd.c: perror+error calls changed to logging_log in code
+	  that runs daemonized.
+
+2006-06-15 17:18  fedemp
+
+	* ChangeLog: Updated.
+
+2006-06-15 17:15  fedemp
+
+	* src/reporting.c: Added conditionally compiled main including a
+	  sample metrics computation loop and final reporting.
+
+2006-06-15 15:03  fedemp
+
+	* src/thrulayd.c: Added check for calloc failure in
+	  reordering_init.
+
+2006-06-14 18:52  fedemp
+
+	* src/thrulayd.c: For UDP tests: added server log at the end of
+	  connections. New function for TCP/UDP common end log stuff:
+	  connection_end_log.
+
+2006-06-14 18:07  fedemp
+
+	* Makefile.am, doc/Makefile.am, doc/Makefile.in, src/Makefile.am,
+	  src/Makefile.in: Use automake in src/ and doc/.
+
+2006-06-14 18:05  fedemp
+
+	* src/reporting.c: Signedness fix in comparison.
+
+2006-06-12 17:25  fedemp
+
+	* src/: reporting.c, reporting.h, thrulayd.c: Maximum reordering
+	  size can be set through reordering_init. Added reordering_exit.
+
+2006-06-10 22:04  fedemp
+
+	* src/thrulayd.c: Report jitter and delay as in
+	  draft-ietf-ippm-reporting
+
+2006-06-09 22:42  fedemp
+
+	* doc/thrulay.1, doc/thrulayd.8, src/thrulayd.c: Man pages updated
+	  for new options, and minor fixes.
+
+2006-06-09 22:17  fedemp
+
+	* src/: Makefile.in, reporting.c, reporting.h: Generic metrics
+	  reporting stuff moved to new files: reporting.h and reporting.c.
+
+2006-06-07 18:22  fedemp
+
+	* ChangeLog: Updated.
+
+2006-06-07 17:48  fedemp
+
+	* src/thrulay.c: Save memory: allocate ((num_streams -1) *
+	  BLOCK_HEADER + server_block_size rather than
+	  num_streams*server_block_size.
+
+2006-06-07 17:16  fedemp
+
+	* src/thrulayd.c: Some Solaris and Linux report EPIPE instead of
+	  ECONNRESET.
+
+2006-06-07 14:26  fedemp
+
+	* Makefile.am, Makefile.in, bootstrap.sh, config.guess,
+	  config.h.in, config.sub, configure.ac, install-sh: Removed files
+	  that are generated by autoheader and automake. Makefile.in moved
+	  to Makefile.am
+
+2006-06-07 13:27  fedemp
+
+	* ChangeLog: Added ChangeLog generated through cvs2cl
+
+2006-06-07 13:24  fedemp
+
+	* src/thrulayd.c: Non-blocking I/O in TCP test loop
+
+2006-06-06 20:29  fedemp
+
+	* TODO, src/thrulay.c, src/thrulay.h: Non-blocking I/O in test
+	  loop, test start and port allocation separated in API
+
+2006-06-06 10:07  fedemp
+
+	* TODO, src/thrulayd.c: Log CPU use by the daemon along with each
+	  test log record
+
+2006-06-05 19:42  fedemp
+
+	* src/thrulayd.c: Added two command line options: -h for help, and
+	  -v for version
+
+2006-06-05 19:37  fedemp
+
+	* src/thrulay.c: Added command line options: -h for help, -v for
+	  version; -i0 disables intermediate reports.
+
+2005-12-11 04:25  shalunov
+
+	* TODO: Microsoft Windows version of client (or both?); probably
+	  cross-compiled
+
+2005-11-16 00:07  shalunov
+
+	* doc/thrulay-logo.png: Newly developed logo.
+
+2005-11-16 00:05  shalunov
+
+	* TODO: consider how and whether to support multicast
+
+2005-11-15 22:00  shalunov
+
+	* doc/thrulay-index.html: Use the text written for FreeBSD port
+	  blurb.
+
+2005-11-15 03:20  shalunov
+
+	* doc/thrulay-index.html: Web site blurb now in CVS.
+
+2005-11-15 03:06  shalunov
+
+	* doc/: thrulay.1, thrulayd.8: send bug reports to
+	  thrulay-users@internet2.edu
+
+2005-11-11 18:50  shalunov
+
+	* Makefile.in, debian/control: Debian package stuff from David
+	  Goodwin.
+
+2005-10-20 04:16  shalunov
+
+	* src/thrulay.c: Guess 9000-B MTU as jumbo-enabled Ethernet.
+
+2005-10-19 21:47  shalunov
+
+	* TODO: log CPU use by the daemon along with each test log record
+
+2005-10-18 21:09  shalunov
+
+	* TODO: make `-i0' disable intermediate reports
+
+2005-10-18 20:53  shalunov
+
+	* TODO: an option to show the version of thrulay and thrulayd
+
+2005-10-18 01:54  shalunov
+
+	* doc/RELEASE-0.8: [no log message]
+
+2005-10-18 01:32  shalunov
+
+	* configure.ac: Incrementing version number.
+
+2005-10-18 01:28  shalunov
+
+	* src/thrulay.c: Getting rid of an extra noreturn (Linux GCC is
+	  nuts).
+
+2005-10-18 01:22  shalunov
+
+	* src/: Makefile.in, assertd.c, thrulay.c, thrulayd.c: Linux
+	  compilation and warnings.
+
+2005-10-17 22:44  shalunov
+
+	* README.release, doc/RELEASE-0.7: Releasing thrulay-0.7.
+
+2005-10-03 22:34  shalunov
+
+	* src/Makefile.in: Give it non-phony targets in all (e.g., thrulay
+	  instead of client), so that linking is conditional on
+	  modification.  (Linking was unconditional.)
+
+2005-10-03 22:30  shalunov
+
+	* TODO: Documentation, authorization.
+
+2005-10-02 20:31  shalunov
+
+	* src/Makefile.in: Turn on all reasonable compiler warnings.
+
+2005-10-02 20:08  shalunov
+
+	* Makefile.in, README.release, doc/Makefile.in, src/Makefile.in:
+	  Change release preparation instructions.  Primary change: instead
+	  of whacking the repository in-place, tag and export.	This
+	  obviates the need for ``rm -rf CVS'' bits in the various
+	  Makefile.in files.
+
+2005-10-02 19:44  shalunov
+
+	* configure.ac: Change thrulay-dev to thrulay-users as the bug
+	  reporting address.  (The hope is that this way, we might get some
+	  support from other users; also, we might get others chime in with
+	  confirmations of bugs.)
+
+2005-10-02 19:34  shalunov
+
+	* Makefile.in, README: ``make install'' now installs man pages.
+	  Plus, minor updates to README as long as I was changing the
+	  instructions.
+
+2005-10-02 19:26  shalunov
+
+	* configure: Remove a generated file (configure) from CVS.  (It's
+	  not part of the source.)
+
+2005-10-02 19:24  shalunov
+
+	* doc/Makefile.in, src/Makefile.in: Change installation locations:
+	  thrulayd now goes to sbindir instead of bindir, and thrulayd.1 is
+	  now known as thrulayd.8 and goes into mandir8, rather than
+	  mandir1.
+
+2005-10-02 19:01  shalunov
+
+	* doc/thrulay-protocol.txt: Commit minor textual fixes I had after
+	  release-06.
+
+2005-10-02 19:00  shalunov
+
+	* TODO: Move items not marked as done to the top.  Add Solaris.
+
+2005-10-02 06:48  hliu
+
+	* src/thrulayd.c: Change timing from us to ms.
+
+2005-10-02 03:49  hliu
+
+	* configure.ac: Changed release version number; Removed  build
+	  prerequisite.
+
+2005-10-02 03:18  hliu
+
+	* LICENSE, Makefile.in, README, README.release, TODO, bootstrap.sh,
+	  config.guess, config.h.in, config.sub, configure, configure.ac,
+	  install-sh, mkinstalldirs, doc/Makefile.in,
+	  doc/thrulay-protocol.txt, doc/thrulay.1, doc/thrulayd.8,
+	  src/Makefile.in, src/assertd.c, src/assertd.h, src/rcs.h,
+	  src/thrulay.c, src/thrulay.h, src/thrulayd.c, src/util.c,
+	  src/util.h: Initial creation.
+
+2005-10-02 03:18  hliu
+
+	* LICENSE, Makefile.in, README, README.release, TODO, bootstrap.sh,
+	  config.guess, config.h.in, config.sub, configure, configure.ac,
+	  install-sh, mkinstalldirs, doc/Makefile.in,
+	  doc/thrulay-protocol.txt, doc/thrulay.1, doc/thrulayd.8,
+	  src/Makefile.in, src/assertd.c, src/assertd.h, src/rcs.h,
+	  src/thrulay.c, src/thrulay.h, src/thrulayd.c, src/util.c,
+	  src/util.h: Initial revision
+
