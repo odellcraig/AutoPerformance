@@ -1,0 +1,45 @@
+'''
+@author: codell
+'''
+
+import commands
+
+class AutoPerformanceEngine(object):
+    '''
+    classdocs
+    '''
+
+    def __init__(self, _time, _frameSize, _dscp, _numStreams):
+        '''
+        Constructor - pass in configuration
+        '''
+        self.time = _time
+        self.frameSize = _frameSize
+        self.windowSize = _frameSize
+        self.dscp = _dscp
+        self.numStreams = _numStreams
+        pass
+    
+    
+    def startServer(self):
+        result = commands.getstatus('ps -e |grep "thrulayd')
+        if not result:
+            commands.getstatus('thrulayd')
+    
+    
+    def runUdp(self, rateString):
+        #Run the UDP version of the test
+        pass
+    
+    
+    def runTcp(self):
+        #Run the system command and grab output
+        #Parse output
+        print "Running the command:"
+        print commands.getoutput('ls');
+        
+    
+if __name__ == "__main__":
+    print "Hello Python"
+    engine = AutoPerformanceEngine(5,1518,0,1)
+    engine.runUdp("100M")

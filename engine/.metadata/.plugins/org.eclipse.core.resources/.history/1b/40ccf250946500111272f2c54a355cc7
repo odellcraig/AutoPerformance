@@ -1,0 +1,30 @@
+'''
+Created on Mar 3, 2012
+
+@author: codell
+'''
+
+class AutoPerformanceEngine(object):
+    '''
+    classdocs
+    '''
+
+
+    def __init__(self):
+        '''
+        Constructor - pass in configuration
+        '''
+        pass
+    
+    def startServer(self):
+        #If the server is not running, start it
+        pass
+    
+    def run(self):
+        #Run the system command and grab output
+        #Parse output
+        pass
+    
+    
+    
+        

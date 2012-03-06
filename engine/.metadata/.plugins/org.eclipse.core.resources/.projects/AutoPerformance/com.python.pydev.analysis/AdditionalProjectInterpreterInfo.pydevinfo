@@ -1,0 +1,32 @@
+-- VERSION_3
+-- START DISKCACHE
+/home/codell/workspace/.metadata/.plugins/org.eclipse.core.resources/.projects/AutoPerformance/com.python.pydev.analysis/v1_indexcache
+.v1_indexcache
+AutoPerformanceClient|0|/home/codell/workspace/AutoPerformance/AutoPerformanceClient.py
+AutoPerformanceEngine|0|/home/codell/workspace/AutoPerformance/AutoPerformanceEngine.py
+AutoPerformanceServer|0|/home/codell/workspace/AutoPerformance/AutoPerformanceServer.py
+-- END DISKCACHE
+-- START DICTIONARY
+4
+1=AutoPerformanceClient
+3=AutoPerformanceEngine
+4=AutoPerformanceEngine.__init__
+2=AutoPerformanceServer
+-- END DICTIONARY
+-- START TREE 1
+1
+aut|3|AutoPerformanceClient!9@AutoPerformanceServer!17@AutoPerformanceEngine!25@
+-- END TREE
+-- START TREE 2
+10
+__i|3|__init__!3&26@__init__!1&10@__init__!2&18@
+dsc|1|dscp!4&27@
+eng|1|engine!3&27@
+fra|1|frameSize!4&27@
+hos|1|host!4&27@
+num|1|numStreams!4&27@
+run|2|runTcp!3&26@runUdp!3&26@
+sta|1|startServer!3&26@
+sto|1|stopServer!3&26@
+tim|1|time!4&27@
+-- END TREE

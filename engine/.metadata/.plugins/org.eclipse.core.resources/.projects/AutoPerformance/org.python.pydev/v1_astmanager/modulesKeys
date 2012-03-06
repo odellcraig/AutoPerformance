@@ -1,0 +1,4 @@
+MODULES_MANAGER_V2
+AutoPerformanceClient|/home/codell/workspace/AutoPerformance/AutoPerformanceClient.py
+AutoPerformanceEngine|/home/codell/workspace/AutoPerformance/AutoPerformanceEngine.py
+AutoPerformanceServer|/home/codell/workspace/AutoPerformance/AutoPerformanceServer.py
