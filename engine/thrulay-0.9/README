@@ -1,0 +1,72 @@
+			  thrulay README file
+
+Copyright 2003, Internet2.
+Legal conditions are in file LICENSE
+(MD5 = ecfa50d1b0bfbb81b658c810d0476a52).
+
+
+			      Motivation
+
+Popular network capacity testing and traffic injection packages (such
+as netperf, iperf, nettest, nuttcp, ttcp, etc.) do not measure
+round-trip time in any way.  This program, thrulay, does.  Having delay
+information along with goodput information clarifies what is happening
+for Reno; but for delay-based TCP variants (such as FAST TCP), it's
+even more important.
+
+The output of thrulay is easier to parse by machine than that of iperf.
+In fact, it's ready to be used as a data file for gnuplot.
+
+Be aware that the code is intended to be run over high-speed networks.
+It won't work nearly as well over, say, a modem, for two reasons:
+
+ (i) delay includes the serialization delay of one data block
+     (negligible for high-speed networks, dominating for modems);
+
+(ii) more than a single reporting interval may be spanned by a single
+     report line because thrulay requires at least one block to be
+     delivered per reporting interval to work as designed.
+
+
+			     Installation
+
+To build the programs, type the following commands:
+
+  $ ./configure
+  $ make
+
+To install the program on your system, type the following command as root:
+
+  # make install
+
+NOTE: If you use a BSD variant other than Mac OS X, you will need
+to use `gmake' (GNU make) instead of `make' (BSD make).
+
+
+			       Running
+
+On the server:	thrulayd	# Messages go to syslog.
+On the client:	thrulay server	# Output goes to stdout, errors -- to stderr.
+
+The thrulayd server should be added to system startup scripts.  The
+exact preferred location varies from system to system, but /etc/rc.local
+is one file that is almost universally honored.
+
+
+                           Acknowledgement
+
+Google's Summer of Code 2005 program supported this project.
+Visit http://code.google.com/summerofcode.html for more information.
+
+
+			       Feedback
+
+Your feedback is very important for us, especially at this relatively early
+stage of the development.  Please see TODO file to get an idea what is
+already planned, and send your comments, suggestions, criticism,
+patches, and flames to thrulay-users at internet2.edu.
+
+		---Stanislav Shalunov <shalunov@internet2.edu>
+		   http://www.internet2.edu/~shalunov/
+
+@(#) $Id: README,v 1.2 2005/10/02 17:34:34 shalunov Exp $
