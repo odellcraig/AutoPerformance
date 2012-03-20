@@ -1,0 +1,18 @@
+The output directory will be given to the client who will append to the files:
+
+Downstream/Summary_Tcp.csv
+Upstream/Summary_Tcp.csv 
+Downstream/Summary_Udp.csv
+Upstream/Summary_Udp.csv 
+
+With the summary data. Each line will be represented with a time run
+that is generated with: time.strftime("%Y-%m-%d_%H-%M-%S") to parse 
+that time use the same format (see time) for examples.
+
+Additionally, for the full results of the run of a TCP test, the output
+will be sent to directory under the filename: Downstream/time.strftime("%Y-%m-%d_%H-%M-%S")_Tcp.csv 
+and Upstream/time.strftime("%Y-%m-%d_%H-%M-%S")_Tcp.csv
+Note that the summary line will be at the bottom of this file but since time.strftime is 
+potentially called at slightly different times, the Summary_Tcp.csv corresponding line 
+may not match exactly.
+

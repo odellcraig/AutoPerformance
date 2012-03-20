@@ -3,82 +3,163 @@
 for CS526 Project
 '''
 
+from UserString import MutableString
 import commands
 import time
 import re
 import os
 
+class AutoPerformanceConfig(object):
+    def __init__(self):
+        self.time = 10
+        self.frameSize = 1518
+        self.dscp = 0
+        self.numStreams = 1
+        self.udpRateString = "10M"
+        self.host = ""
+        self.port = 5004
+        self.serverPort = 5004
+        
+    def fromString(self, stringConfig):
+        '''
+        Pass in string format and set members
+        '''
+        items = stringConfig.split()
+        self.time           = items[0]
+        self.frameSize      = items[1]
+        self.dscp           = items[2]
+        self.numStreams     = items[3]
+        self.udpRateString  = items[4] 
+        self.host           = items[5] 
+        self.port           = items[6]
+        self.serverPort     = items[7]
+    
+    def toString(self):
+        '''
+        This will create a string the members 
+        '''
+        strMe = MutableString()
+        strMe += str(self.time) + " "
+        strMe += str(self.frameSize) + " "
+        strMe += str(self.dscp) + " "
+        strMe += str(self.numStreams) + " " 
+        strMe += str(self.udpRateString) + " "
+        strMe += str(self.host) + " "
+        strMe += str(self.port) + " "
+        strMe += str(self.serverPort)
+        return str(strMe)
+        
+
 class AutoPerformanceEngine(object):
     '''
     classdocs
     '''
-
-    def __init__(self, _time, _frameSize, _dscp, _numStreams, _host, outputFile, summaryFile):
+    def __init__(self, _config):
         '''
         Constructor - pass in configuration
         '''
-        self.time = _time
-        self.frameSize = _frameSize
-        self.dscp = _dscp
-        self.numStreams = _numStreams
-        self.host = _host
-        self.outputUdp = outputFile+"_udp.csv"
-        self.outputTcp = outputFile+"_tcp.csv"
-        self.summaryUdp = summaryFile+"_udp.csv"
-        self.summaryTcp = summaryFile+"_tcp.csv"
+        self.config = _config
         self.pathToThrulay = 'thrulay-0.9/src/'
         pass
     
     
     def startServer(self):
+        print "Checking if server is running..."
         result,output = commands.getstatusoutput('ps -e |grep "thrulayd"')
-        print "Results of grep was:",result
-        if result:
-            cmd = self.pathToThrulay + 'thrulayd'
-            start,output = commands.getstatusoutput(cmd)
-            if not start:
-                print "Server was successfully started."
+        
+        #Start the server either way...
+        cmd = MutableString()
+        cmd += self.pathToThrulay + 'thrulayd -p'
+        cmd += self.config.serverPort
+        start,output = commands.getstatusoutput(str(cmd))
+        if not start:
+            print "Server was successfully started."
         else:
             print "Server already running"
             
             
             
     def stopServer(self):
-        result,output = commands.getstatusoutput('killall lt-thrulayd')
+        result,output = commands.getstatusoutput('killall lt-thrulayd 2>/dev/null')
         goodness = (result == 0)
         print "Result of stop server command success = ", goodness
     
     
-    def runUdp(self, rateString):
+    def runUdp(self):
+        '''
+        Returns the summary line to be added to the UDP summary 
+        (since UDP doesn't provide incremental results, only summary
+        line is needed)
+        '''
         #Run the UDP version of the test
-        output = commands.getoutput('ls');
+        udpCommand = self.pathToThrulay + 'thrulay -t' + str(int(self.config.time))
+        udpCommand += ' -D' + str(self.config.dscp)
+        udpCommand += ' -u' + self.config.udpRateString
+        udpCommand += ' -p' + str(self.config.port)
+        udpCommand += ' ' + self.config.host
+        print "Running (", udpCommand,")"
+        output = commands.getoutput(udpCommand);
         lines  = output.split("\n");
-        for line in lines:
-            print "Line = ", line
-            
-        print "Save to UDP file: ", self.outputUdp
-    
-    
-    def runTcp(self):
-        #Run the system command and grab output
-        #Parse output
-        tcpCommand = self.pathToThrulay + 'thrulay -t' + str(self.time)
-        tcpCommand += ' -D' + str(self.dscp)
-        tcpCommand += ' -m' + str(self.numStreams)
-        tcpCommand += ' ' + self.host
-        print "Running (", tcpCommand,")"
-        output = commands.getoutput(tcpCommand);
-        lines  = output.split("\n");
-        outFile = open(self.outputTcp, 'w')
-        outFile.write("Time, Mbps, RTT[ms], Jitter[ms]\n")
         
         #If summary does not exist, put headers in it
-        if(not os.path.isfile(self.summaryTcp)):
-            putHeaders = open(self.summaryTcp, 'a')
-            putHeaders.write("Date, AverageMbps, AverageRtt, AverageJitter\n")
-            putHeaders.close()
-        sumFile = open(self.summaryTcp, 'a')    
+        loss        = 0.0
+        jitter      = 0.0
+        duplicate   = 0.0
+        reorder     = 0.0
+               
+        for line in lines:
+            #If summary, then get summary info send to summary file
+            if(re.match(r'^Loss:', line)):
+                extract = re.search(r'\s+(.+)%\s*$',line)
+                if(extract):
+                    loss = extract.group(1)
+            elif(re.match(r'^Jitter:', line)):
+                extract = re.search(r'\s+(.+)\s*$',line)
+                if(extract):
+                    jitter = extract.group(1)
+            elif(re.match(r'^Duplication:', line)):
+                extract = re.search(r'\s+(.+)%\s*$',line)
+                if(extract):
+                    duplicate = extract.group(1)
+            elif(re.match(r'^Reordering:', line)):
+                extract = re.search(r'\s+(.+)%\s*$',line)
+                if(extract):
+                    reorder = extract.group(1)
+          
+           
+        summaryLine = MutableString()
+        summaryLine += time.strftime("%Y-%m-%d_%H:%M:%S") + ", "
+        summaryLine += self.config.udpRateString + ", "
+        summaryLine += loss       + ", "
+        summaryLine += jitter     + ", "
+        summaryLine += duplicate  + ", "
+        summaryLine += reorder    + "\n"
+        return summaryLine
+    
+    def runTcp(self):
+        '''
+        Returns a tuple of (data, summaryLine) where data are lines
+        that should be outputed to the csv file (or transfered over tcp)
+        and summaryLine is the summary of the run to be sent or appended to 
+        the summary file
+        '''
+        #Run the system command and grab output
+        #Parse output
+        tcpCommand = MutableString()
+        tcpCommand += self.pathToThrulay + 'thrulay -t' + str(self.config.time)
+        tcpCommand += ' -D' + str(self.config.dscp)
+        tcpCommand += ' -m' + str(self.config.numStreams)
+        tcpCommand += ' -p' + str(self.config.port)
+        tcpCommand += ' ' + self.config.host
+        print "Running (", tcpCommand,")"
+        output = commands.getoutput(str(tcpCommand));
+        lines  = output.split("\n");
         
+        summaryData = MutableString()
+        data        = MutableString()
+        data += "Time, Mbps, RTT[ms], Jitter[ms]\n"
+        
+          
         for line in lines:
             #If summary, then get summary info send to summary file
             if(re.match(r'^\s*#\(\*\*\)', line)):
@@ -86,21 +167,27 @@ class AutoPerformanceEngine(object):
                 if(extract):
                     #Write to file
                     #Date, AverageMbps, AverateRTT, AverageJitter
-                    sumFile.write(time.strftime("%Y-%m-%d_%H:%M:%S") + ", " + #Date
-                                  str(extract.group(3))+", " + #Mbps
-                                  str(extract.group(4))+", " + #RTT
-                                  str(extract.group(5))+"\n"); #Jitter
+                    summaryData += time.strftime("%Y-%m-%d_%H-%M-%S") + ", "
+                    summaryData += str(extract.group(3))+", "           #Mbps
+                    summaryData += str(extract.group(4))+", "           #RTT
+                    summaryData += str(extract.group(5))+"\n"           #Jitter
+                    
+                    #Also add it to the end of the data line so we have it in that file
+                    data += "Total: " #Totals to be added 
+                    data += str(extract.group(3))+", " # Mbps
+                    data += str(extract.group(4))+", " # RTT
+                    data += str(extract.group(5))+"\n" # Jitter
                     
             if(re.match(r'^\s*\([\s\d]+\)\s*', line)):
                 extract = re.search(r'^\s*\(([\s\d]+)\)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*$', line)
                 if(extract):
-                    #Write to file
+                    #Write to output
                     #Time, Mbps, RTT, Jitter
-                    outFile.write(str(extract.group(3))+", " + #Time
-                                  str(extract.group(4))+", " + #Mbps
-                                  str(extract.group(5))+", " + #RTT
-                                  str(extract.group(6))+"\n"); #Jitter
-                     
+                    data += str(extract.group(3))+", " # Time
+                    data += str(extract.group(4))+", " # Mbps
+                    data += str(extract.group(5))+", " # RTT
+                    data += str(extract.group(6))+"\n" # Jitter
+                    
                     if(0):
                         print "Stream     = ", extract.group(1)
                         print "Time Start = ", extract.group(2)
@@ -108,20 +195,24 @@ class AutoPerformanceEngine(object):
                         print "Mbps       = ", extract.group(4)
                         print "RTT delay  = ", extract.group(5)
                         print "Jitter     = ", extract.group(6)
+        return data,summaryData
            
             
-        print "Save to TCP file: ", self.outputTcp
-        print "Append to summary file: ", self.summaryTcp
-        outFile.close()
-        sumFile.close()
         
     
 if __name__ == "__main__":
-    engine = AutoPerformanceEngine(20,1518,0,1,"localhost",time.strftime("%Y-%m-%d_%H:%M:%S"), "summary")
+    config = AutoPerformanceConfig()
+    config.time = 20
+    config.frameSize = 1518
+    config.dscp = 0
+    config.numStreams = 1
+    config.host = "localhost" 
+    
+    engine = AutoPerformanceEngine(config)
     print "Now running TCP:"
     engine.startServer()
-    engine.runTcp()
-    engine.runUdp("40M")
+    tcpData,tcpSummary = engine.runTcp()
+    udpData = engine.runUdp("40M")
     engine.stopServer()
     
     #Test of date and back
