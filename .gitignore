@@ -1,3 +1,5 @@
 
 #ignore image files
 *.png
+#and python compiled files
+*.pyc
