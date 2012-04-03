@@ -4,6 +4,7 @@ Created on Mar 3, 2012
 @author: codell
 '''
 from AutoPerformanceEngine import AutoPerformanceConfig, AutoPerformanceEngine
+from UserString import MutableString
 import os
 import socket
 import time
@@ -18,6 +19,19 @@ class AutoPerformanceClientConfig(object):
         self.port = 5002
         self.udpRateString = "10M"
         self.outputDirectory = ""
+        
+    def __str__(self):
+        mString = MutableString()
+        mString += "host=            " + self.host + "\n"
+        mString += "port=            "+ self.port + "\n"
+        mString +=  "duration=        "+ self.duration + "\n"
+        mString +=  "frameSize=       "+ self.frameSize + "\n"
+        mString +=  "dscp=            "+ self.dscp + "\n"
+        mString +=  "numStreams=      "+ self.numStreams + "\n"
+        mString +=  "udpRateString=   "+ self.udpRateString + "\n"
+        mString +=  "outputDirectory= "+ self.outputDirectory + "\n"
+        return str(mString)
+        
 
 
 class AutoPerformanceClient(object):
@@ -33,11 +47,11 @@ class AutoPerformanceClient(object):
         
 
     def go(self):
-        print "Opening connection..."
+        print "AutoPerformance::Client::Opening connection..."
         self.open()
-        print "Starting test..."
+        print "AutoPerformance::Client::Starting test..."
         self.run()
-        print "Stopping test..."
+        print "AutoPerformance::Client::Stopping test..."
         self.close()
     
     def open(self):
@@ -45,7 +59,7 @@ class AutoPerformanceClient(object):
         try:
             self.sock.connect((self.config.host, self.config.port))
         except:
-            print "Error connecting to ", self.config.host, "on ", self.config.port
+            print "AutoPerformance::Client::Error connecting to ", self.config.host, "on ", self.config.port
       
     def close(self):
         self.sock.close()
@@ -75,11 +89,11 @@ class AutoPerformanceClient(object):
             self.ouputUdpToFile(summaryNear, summaryFar)
             
         except:
-            print "Error: an exception occured in client::run()"
+            print "AutoPerformance::Client::Error: an exception occured in client::run()"
         finally:
             #stop the server
             engine.stopServer()
-            print "Done on client side."
+            print "AutoPerformance::Client::Done on client side."
         
         print "Client is finishing now."
         
@@ -123,19 +137,19 @@ class AutoPerformanceClient(object):
         receive the summary line for the run - send 
         ack to separate (not sure if that will work)
         '''
-        print "Receiving TCP Results (Data Run)"
+        print "AutoPerformance::Client::Receiving TCP Results (Data Run)"
         data = self.sock.recv(8192)
-        print "Sending Acknowledgement"
+        print "AutoPerformance::Client::Sending Acknowledgement"
         self.sock.sendall('ack')
-        print "Receiving TCP Summary Results"
+        print "AutoPerformance::Client::Receiving TCP Summary Results"
         summary = self.sock.recv(1024)
-        print "Done Receiving TCP Results"
+        print "AutoPerformance::Client::Done Receiving TCP Results"
         return data,summary
         
     def receiveUdpResults(self):
-        print "Receiving UDP Results."
+        print "AutoPerformance::Client::Receiving UDP Results."
         data = self.sock.recv(1024);
-        print "Done Receiving UDP Results."
+        print "AutoPerformance::Client::Done Receiving UDP Results."
         return data
         
             

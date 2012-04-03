@@ -64,7 +64,7 @@ class AutoPerformanceEngine(object):
     
     
     def startServer(self):
-        print "Checking if server is running..."
+        print "AutoPerformance::Engine::Checking if server is running..."
         result,output = commands.getstatusoutput('ps -e |grep "thrulayd"')
         
         #Start the server either way...
@@ -82,7 +82,7 @@ class AutoPerformanceEngine(object):
     def stopServer(self):
         result,output = commands.getstatusoutput('killall lt-thrulayd 2>/dev/null')
         goodness = (result == 0)
-        print "Result of stop server command success = ", goodness
+        print "AutoPerformance::Engine::Result of stop server command success = ", goodness
     
     
     def runUdp(self):
@@ -97,7 +97,7 @@ class AutoPerformanceEngine(object):
         udpCommand += ' -u' + self.config.udpRateString
         udpCommand += ' -p' + str(self.config.port)
         udpCommand += ' ' + self.config.host
-        print "Running (", udpCommand,")"
+        print "AutoPerformance::Engine::Running (", udpCommand,")"
         output = commands.getoutput(udpCommand);
         lines  = output.split("\n");
         
@@ -151,7 +151,7 @@ class AutoPerformanceEngine(object):
         tcpCommand += ' -m' + str(self.config.numStreams)
         tcpCommand += ' -p' + str(self.config.port)
         tcpCommand += ' ' + self.config.host
-        print "Running (", tcpCommand,")"
+        print "AutoPerformance::Engine::Running (", tcpCommand,")"
         output = commands.getoutput(str(tcpCommand));
         lines  = output.split("\n");
         
