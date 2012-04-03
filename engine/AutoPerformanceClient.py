@@ -29,12 +29,24 @@ class AutoPerformanceClient(object):
         Constructor
         '''
         self.config = config
+        self.sock = None
+        
+
+    def go(self):
+        print "Opening connection..."
+        self.open()
+        print "Starting test..."
+        self.run()
+        print "Stopping test..."
+        self.close()
+    
+    def open(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.sock.connect((self.config.host, self.config.port))
         except:
             print "Error connecting to ", self.config.host, "on ", self.config.port
-        
+      
     def close(self):
         self.sock.close()
         
@@ -92,7 +104,7 @@ class AutoPerformanceClient(object):
         configFar.dscp = self.config.dscp
         configFar.numStreams = self.config.numStreams
         configFar.udpRateString = self.config.udpRateString
-        configFar.host = self.sock.getsockname()[0] #Get the local IP address
+        configFar.host = 'lookMeUp' #Get the local IP address on far side
         configFar.port = self.config.port+2 #Get the local port +1
         configFar.serverPort = self.config.port+1
         return configNear,configFar

@@ -19,6 +19,10 @@ class AutoPerformanceThreadHandler(SocketServer.BaseRequestHandler):
         configStr = self.request.recv(1024)
         config = AutoPerformanceConfig()
         config.fromString(configStr)
+        config.host = self.request.getpeername()[0]
+        
+        print "Server is using peer name of: ", config.host
+        
         engine = AutoPerformanceEngine(config)
         
         #Start our server
