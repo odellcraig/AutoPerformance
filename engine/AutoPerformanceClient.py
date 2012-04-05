@@ -22,14 +22,14 @@ class AutoPerformanceClientConfig(object):
         
     def __str__(self):
         mString = MutableString()
-        mString += "host=            " + self.host + "\n"
-        mString += "port=            "+ self.port + "\n"
-        mString +=  "duration=        "+ self.duration + "\n"
-        mString +=  "frameSize=       "+ self.frameSize + "\n"
-        mString +=  "dscp=            "+ self.dscp + "\n"
-        mString +=  "numStreams=      "+ self.numStreams + "\n"
-        mString +=  "udpRateString=   "+ self.udpRateString + "\n"
-        mString +=  "outputDirectory= "+ self.outputDirectory + "\n"
+        mString += "host=            " + str(self.host) + "\n"
+        mString += "port=            " + str(self.port) + "\n"
+        mString += "duration=        " + str(self.duration) + "\n"
+        mString += "frameSize=       " + str(self.frameSize) + "\n"
+        mString += "dscp=            " + str(self.dscp) + "\n"
+        mString += "numStreams=      " + str(self.numStreams) + "\n"
+        mString += "udpRateString=   " + str(self.udpRateString) + "\n"
+        mString += "outputDirectory= " + str(self.outputDirectory) + "\n"
         return str(mString)
         
 

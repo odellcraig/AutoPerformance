@@ -52,7 +52,8 @@ def getDayRange(strRange):
         
 
 
-def getClientFromConfig(fileName, clientConfig):
+def getClientFromConfig(fileName):
+    clientConfig = AutoPerformanceClientConfig()
     config = open(fileName, 'r')
     cronTuple = [allMatch, allMatch, allMatch, allMatch, allMatch]
     for line in config:
@@ -119,7 +120,7 @@ def getClientFromConfig(fileName, clientConfig):
                 continue
             cronTuple[4]=getDayRange(value)
             continue
-    return cronTuple
+    return cronTuple, clientConfig
 
 
 def setupClient(clientConfig):
@@ -164,18 +165,10 @@ if __name__ == "__main__":
         server.stopServer()
     
     if(sys.argv[1] == '-c'):
-        clientConfig = AutoPerformanceClientConfig()
         clientConfigFile = DEFAULT_CLIENT_CONFIG
         if(len(sys.argv) > MIN_ARG_COUNT+1):
             clientConfigFile = sys.argv[2]
-        cronList = getClientFromConfig(clientConfigFile, clientConfig)
-        
-        print "Using config:\n", clientConfig
-        print "Using cron:\n", cronList
-        
-        #TODO: Pass in client/server config from file(s)
-        clientConfig = AutoPerformanceClientConfig()
-        setupClient(clientConfig)
+        cronList, clientConfig = getClientFromConfig(clientConfigFile)
         client = AutoPerformanceClient(clientConfig)
         cron = CronTab(Event(client.go,cronList[0],cronList[1],cronList[2],cronList[3],cronList[4]))
         #Daemonize
