@@ -70,19 +70,19 @@ def getClientFromConfig(fileName):
             clientConfig.host = value
             continue
         if(tag == "port"):
-            clientConfig.port = value
+            clientConfig.port = int(value)
             continue
         if(tag == "duration"):
-            clientConfig.duration = value
+            clientConfig.duration = int(value)
             continue
         if(tag == "frameSize"):
-            clientConfig.frameSize = value
+            clientConfig.frameSize = int(value)
             continue
         if(tag == "dscp"):
-            clientConfig.dscp = value
+            clientConfig.dscp = int(value)
             continue
         if(tag == "numStreams"):
-            clientConfig.numStreams = value
+            clientConfig.numStreams = int(value)
             continue
         if(tag == "udpRateString"):
             clientConfig.udpRateString = value

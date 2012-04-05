@@ -39,14 +39,14 @@ class AutoPerformanceConfig(object):
         This will create a string the members 
         '''
         strMe = MutableString()
-        strMe += str(self.time) + " "
-        strMe += str(self.frameSize) + " "
-        strMe += str(self.dscp) + " "
-        strMe += str(self.numStreams) + " " 
-        strMe += str(self.udpRateString) + " "
-        strMe += str(self.host) + " "
-        strMe += str(self.port) + " "
-        strMe += str(self.serverPort)
+        strMe += self.time + " "
+        strMe += self.frameSize + " "
+        strMe += self.dscp + " "
+        strMe += self.numStreams + " " 
+        strMe += self.udpRateString + " "
+        strMe += self.host + " "
+        strMe += self.port + " "
+        strMe += self.serverPort
         return str(strMe)
         
 
