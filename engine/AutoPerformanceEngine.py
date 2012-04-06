@@ -98,7 +98,7 @@ class AutoPerformanceEngine(object):
         udpCommand += ' -p' + str(self.config.port)
         udpCommand += ' ' + self.config.host
         print "AutoPerformance::Engine::Running (", udpCommand,")"
-        output = commands.getoutput(udpCommand);
+        output = commands.getoutput(udpCommand)
         lines  = output.split("\n");
         
         #If summary does not exist, put headers in it
