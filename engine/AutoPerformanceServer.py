@@ -55,17 +55,29 @@ class AutoPerformanceThreadHandler(SocketServer.BaseRequestHandler):
             
     
     def sendTcpResults(self,data,summary):
+        print "Server Now Sending TCP Data..."
         self.request.sendall(str(data))
         ack = self.request.recv(10)
         if(str(ack) != "ack"):
-            print "Error: Did not receive data ack."
-        print "Server Now Sending Summary: ", summary
+            print "Error: Did not receive data ack for TCP data."
+        
+        
+        print "Server Now Sending TCP Summary: ", summary
         self.request.sendall(str(summary))
+        ack = self.request.recv(10)
+        if(str(ack) != "ack"):
+            print "Error: Did not receive data ack for TCP data."
+        
+        
         print "Server Done Sending TCP Results"
 
     def sendUdpResults(self,summary):
         print "Server Now Sending UDP Results"
+        print "Sending:\n",str(summary)
         self.request.sendall(str(summary))
+        ack = self.request.recv(10)
+        if(str(ack) != "ack"):
+            print "Error: Did not receive data ack for UDP Summary."        
         print "Server Done Sending UDP Results"
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):

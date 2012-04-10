@@ -137,20 +137,27 @@ class AutoPerformanceClient(object):
         receive the summary line for the run - send 
         ack to separate (not sure if that will work)
         '''
-        print "AutoPerformance::Client::Receiving TCP Results (Data Run)"
+        print "AutoPerformance::Client::Receiving TCP Data"
         data = self.sock.recv(8192)
-        print "AutoPerformance::Client::Sending Acknowledgement"
         self.sock.sendall('ack')
+        print "Received the following data:\n", data
+        
+        
         print "AutoPerformance::Client::Receiving TCP Summary Results"
         summary = self.sock.recv(1024)
+        self.sock.sendall('ack')
+        
         print "AutoPerformance::Client::Done Receiving TCP Results"
+        print "Received the following summary:\n", summary
         return data,summary
         
     def receiveUdpResults(self):
-        print "AutoPerformance::Client::Receiving UDP Results."
-        data = self.sock.recv(1024);
-        print "AutoPerformance::Client::Done Receiving UDP Results."
-        return data
+        print "AutoPerformance::Client::Receiving UDP Results"
+        summary = self.sock.recv(1024);
+        self.sock.sendall('ack')
+        print "AutoPerformance::Client::Done Receiving UDP Results"
+        print "Received the following summary:\n", summary
+        return summary
         
             
     def ouputTcpToFile(self, dataNear, dataFar, summaryNear, summaryFar):
