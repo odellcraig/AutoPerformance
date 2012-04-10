@@ -4,10 +4,12 @@ Created on Mar 3, 2012
 @author: codell
 '''
 
+from AutoPerformanceDaemon import Daemon
 from AutoPerformanceEngine import AutoPerformanceEngine, AutoPerformanceConfig
 import SocketServer
-import socket
+import os
 import threading
+import time
 
 
 class AutoPerformanceThreadHandler(SocketServer.BaseRequestHandler):
@@ -72,12 +74,13 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         SocketServer.TCPServer.__init__(self, one,two)
 
 
-class AutoPerformanceServer(object):
+class AutoPerformanceServer(Daemon):
     def __init__(self,host,port):
+        super(AutoPerformanceServer, self)
         self.host = host
         self.port = port
         self.server = ThreadedTCPServer((self.host, self.port), AutoPerformanceThreadHandler) 
-    def startServer(self):
+    def run(self):
         # Start a thread with the server -- that thread will then start one
         # more thread for each request
         self.server_thread = threading.Thread(target=self.server.serve_forever)
@@ -85,10 +88,14 @@ class AutoPerformanceServer(object):
         self.server_thread.daemon = True
         self.server_thread.start()
         print "Server loop running in thread:", self.server_thread.name
+        while True:
+            time.sleep(1)
+        
     def stopServer(self):
         self.server.shutdown()
         self.server_thread.join(10)
         
+       
     
 
 

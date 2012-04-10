@@ -4,7 +4,10 @@ Created on April 2, 2012
 @author: codell
 '''
 
+from AutoPerformanceDaemon import Daemon
 from datetime import datetime, timedelta
+import os
+import pwd
 import time
 
 # Some utility classes / functions first
@@ -49,8 +52,9 @@ class Event(object):
             
             
             
-class CronTab(object):
+class CronTab(Daemon):
     def __init__(self, *events):
+        super(CronTab, self)
         self.events = events
 
     def run(self):

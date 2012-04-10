@@ -5,9 +5,10 @@ for CS526 Project
 
 from UserString import MutableString
 import commands
-import time
-import re
 import os
+import re
+import sys
+import time
 
 class AutoPerformanceConfig(object):
     def __init__(self):
@@ -65,7 +66,11 @@ class AutoPerformanceEngine(object):
     
     def startServer(self):
         print "AutoPerformance::Engine::Checking if server is running..."
-        result,output = commands.getstatusoutput('ps -e |grep "thrulayd"')
+        result,output = commands.getstatusoutput('ps -e | grep "thrulayd"')
+        
+        if not result:
+            print "Server already running"
+            return
         
         #Start the server either way...
         cmd = MutableString()
@@ -75,7 +80,8 @@ class AutoPerformanceEngine(object):
         if not start:
             print "Server was successfully started."
         else:
-            print "Server already running"
+            print "Unable to start server. Exiting."
+            sys.exit()
             
             
             

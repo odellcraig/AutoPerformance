@@ -6,12 +6,12 @@ Created on Mar 6, 2012
 '''
 from AutoPerformanceClient import AutoPerformanceClient, \
     AutoPerformanceClientConfig
+from AutoPerformanceDaemon import Daemon
 from AutoPerformanceServer import AutoPerformanceServer
 from AutoPerformanceTimer import CronTab, Event, allMatch
 import os
 import re
 import sys
-import time
 
 
 def getServerFromConfig(fileName):
@@ -137,48 +137,93 @@ def setupClient(clientConfig):
 
 if __name__ == "__main__":
     #TODO: open up schedule file (from command line)
-    usage = "Server:\nautoperf.py -s <serverConfigFile>\n \
-             Client:\nautoperf.py -c -d <clientConfigFile\n"
+    usage = "Server:\nautoperf.py -s start|stop [<serverConfigFile>]\n \
+             Client:\nautoperf.py -c start|stop [<clientConfigFile] \n"
              
-    MIN_ARG_COUNT = 2
+    MIN_ARG_COUNT = 3
     DEFAULT_SERVER_CONFIG = "server.conf"
     DEFAULT_CLIENT_CONFIG = "client.conf"
     
     if(len(sys.argv) < MIN_ARG_COUNT):
         print "AutoPerformance: too few arguments.\n"
         print usage
-        sys.exit()
+        sys.exit(1)
+    
     
     if(sys.argv[1] == "-s"):
-        serverConfigFile = DEFAULT_SERVER_CONFIG
-        if(len(sys.argv) > MIN_ARG_COUNT+1):
-            serverConfigFile = sys.argv[2]
-        host,port = getServerFromConfig(serverConfigFile)
-        print "Starting server on",host,port
-        server = AutoPerformanceServer(host,port)
-        server.startServer()
-        #Daemonize
-        #if os.fork():
-        #    sys.exit()
-        while 1:
-            time.sleep(60)
-        server.stopServer()
+        
+        #Start the server
+        if(sys.argv[2] == "start"):
+            serverConfigFile = DEFAULT_SERVER_CONFIG
+            if(len(sys.argv) > MIN_ARG_COUNT+1):
+                serverConfigFile = sys.argv[3]
+                
+            host,port = getServerFromConfig(serverConfigFile)
+            print "Starting server on",host,port
+            server = AutoPerformanceServer(host,port)
+            pidFile = os.getcwd()+"/autoperf_server.pid"        
+            server.start(pidFile, '/dev/stdin', '/dev/stdout', '/dev/stderr') #Daemonize
+            
+        #Stop the server
+        elif(sys.argv[2] == "stop"):
+            print "Stopping server"
+            pidFile = os.getcwd()+"/autoperf_server.pid"
+            daemon = Daemon()
+            daemon.stop(pidFile)
+        
+        #Start the server without dameonizing
+        elif(sys.argv[2] == "cstart"):
+            serverConfigFile = DEFAULT_SERVER_CONFIG
+            if(len(sys.argv) > MIN_ARG_COUNT+1):
+                serverConfigFile = sys.argv[3]
+                
+            host,port = getServerFromConfig(serverConfigFile)
+            print "Starting server on",host,port
+            server = AutoPerformanceServer(host,port)
+            server.run()
+            
+        #Otherwise, error
+        else:
+            print "Unknown argument:", sys.argv[2]
+            print usage
+            sys.exit(1)
+        
     
     if(sys.argv[1] == '-c'):
-        clientConfigFile = DEFAULT_CLIENT_CONFIG
-        if(len(sys.argv) > MIN_ARG_COUNT+1):
-            clientConfigFile = sys.argv[2]
-        cronList, clientConfig = getClientFromConfig(clientConfigFile)
-        client = AutoPerformanceClient(clientConfig)
-        cron = CronTab(Event(client.go,cronList[0],cronList[1],cronList[2],cronList[3],cronList[4]))
-        #Daemonize
-#        if os.fork():
-#            sys.exit()
         
-        cron.run()
-        #Never reach here, unless badness
+        #Start the client
+        if(sys.argv[2] == "start"):
+            clientConfigFile = DEFAULT_CLIENT_CONFIG
+            if(len(sys.argv) > MIN_ARG_COUNT+1):
+                clientConfigFile = sys.argv[3]
+            cronList, clientConfig = getClientFromConfig(clientConfigFile)
+            client = AutoPerformanceClient(clientConfig)
+            cron = CronTab(Event(client.go,cronList[0],cronList[1],cronList[2],cronList[3],cronList[4]))
+            pidFile = os.getcwd() + "/autoperf_client.pid"
+            cron.start(pidFile, '/dev/stdin', '/dev/stdout', '/dev/stderr') #Daemonize and Run
+        
+        #Stop the client
+        elif(sys.argv[2] == "stop"):
+            pidFile = os.getcwd() + "/autoperf_client.pid"
+            daemon = Daemon()
+            daemon.stop(pidFile)
+            pass
+
+        #Start the client in console mode (no daemon)
+        elif(sys.argv[2] == "cstart"):
+            clientConfigFile = DEFAULT_CLIENT_CONFIG
+            if(len(sys.argv) > MIN_ARG_COUNT+1):
+                clientConfigFile = sys.argv[3]
+            cronList, clientConfig = getClientFromConfig(clientConfigFile)
+            client = AutoPerformanceClient(clientConfig)
+            cron = CronTab(Event(client.go,cronList[0],cronList[1],cronList[2],cronList[3],cronList[4]))
+            cron.run()
     
-    
+        #Otherwise, error
+        else: 
+            print "Unknown argument:", sys.argv[2]
+            print usage
+            sys.exit(1)
     
     
     
