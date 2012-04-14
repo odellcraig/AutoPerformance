@@ -34,14 +34,14 @@ class AutoPerformanceThreadHandler(SocketServer.BaseRequestHandler):
         
             runCmd = self.request.recv(10)
             if(str(runCmd) != 'tcp'):
-                print "Error: unexpected request. Aborting"
+                print "Error: unexpected request. Aborting: recv:", runCmd
                 return
             data, summaryTcp = engine.runTcp()
             self.sendTcpResults(data, summaryTcp)
             
             runCmd = self.request.recv(10)
             if(str(runCmd) != 'udp'):
-                print "Error: unexpected request. Aborting"
+                print "Error: unexpected request. Aborting recv:", runCmd
                 return
             summaryUdp = engine.runUdp()
             self.sendUdpResults(summaryUdp)
@@ -91,8 +91,8 @@ class AutoPerformanceServer(Daemon):
         super(AutoPerformanceServer, self)
         self.host = host
         self.port = port
-        self.server = ThreadedTCPServer((self.host, self.port), AutoPerformanceThreadHandler) 
     def run(self):
+        self.server = ThreadedTCPServer((self.host, self.port), AutoPerformanceThreadHandler)
         # Start a thread with the server -- that thread will then start one
         # more thread for each request
         self.server_thread = threading.Thread(target=self.server.serve_forever)
