@@ -46,16 +46,24 @@ class dataset(object):
             self.dates.append(tokens[0])
             
             if self.type == 'udp':
-                self.udp_mbps.append(tokens[1])
-                self.udp_losspercent.append(tokens[2])
-                self.udp_jit.append(tokens[3])
-                self.udp_dup.append(tokens[4])
-                self.udp_reord.append(tokens[5])            
+                
+                #strip extra char off the end for mbps
+                self.udp_mbps.append(float(tokens[1][0:-1]))
+                
+                self.udp_losspercent.append(float(tokens[2]))
+
+                #strip extra char off the end for jitter 
+                self.udp_jit.append(float(tokens[3][0:-2]))
+                
+                self.udp_dup.append(float(tokens[4]))
+                
+                #strip the newline off reorder
+                self.udp_reord.append(float(tokens[5][0:-1]))            
 
             elif self.type == 'tcp':
-                self.tcp_mbps.append(tokens[1])
-                self.tcp_rtt.append(tokens[2])
-                self.tcp_jit.append(tokens[3])
+                self.tcp_mbps.append(float(tokens[1]))
+                self.tcp_rtt.append(float(tokens[2]))
+                self.tcp_jit.append(float(tokens[3]))
             else: #error
                 print 'bad type'
                 
@@ -71,24 +79,6 @@ class dataset(object):
 
 
 
-
-
-'''
-Loads and allows access to records from a UDP test summary file format
-'''
-class UDPdataset(dataset):
-    
-    pass
-
-'''
-Loads and allows access to records from a TCP test summary file format
-'''
-class TCPdataset(dataset):
-    
-    pass
-
-
-
 class grapher(object):
     '''
     classdocs
@@ -100,32 +90,81 @@ class grapher(object):
         Constructor
         '''
         self.dataset = _dataset 
-        self.title = "Default Graph Title"
-        self.xlabel = "X axis"
-        self.ylabel = "y axis"
+     
+    #converts the thrulay date format, into a format
+    #compatible with the MatPlotlib 'plot_date' function   
+    def convertTimeList(self,thrulayDates):
+        #2012-03-18_21:25:07
+        convertedList = []
+        days = 1
+        for dateStr in thrulayDates:
+            convertedList.append(days)
+            days += 1
+            
+        return convertedList           
+    
+    def saveGraph(self,graphType,outfilename):
+        yAxisData = []
+        xLabel = 'time'
+        yLabel = None
+        graphTitle = None
         
-        #read in the file specified and parse the data
-
-        pass
-    
-    
-    def saveThroughput(self,_OutputFilename):
+        if (graphType == "tcp_mbps"):
+            yAxisData = self.dataset.tcp_mbps
+            graphTitle = "TCP Megabits per second VS time"
+            yLabel = 'Megabits'
+        elif (graphType == "tcp_rtt"):
+            yAxisData = self.dataset.tcp_rtt
+            graphTitle = "TCP Round Trip Time"
+            yLabel = 'whatever rtt unit is'
+        elif (graphType == "tcp_jit"):
+            yAxisData = self.dataset.tcp_jit
+            graphTitle = "TCP Jitter"
+            yLabel = 'whatever jitter unit is'
+        elif (graphType == "udp_mbps"):
+            yAxisData = self.dataset.udp_mbps
+            graphTitle = "UDP Megabits per second VS time"
+            yLabel = 'Megabits'
+        elif (graphType == "udp_jit"):
+            yAxisData = self.dataset.udp_jit
+            graphTitle = "UDP Jitter"
+            yLabel = 'whatever Jitter unit is'
+        elif (graphType == "udp_dup"):
+            yAxisData = self.dataset.udp_dup
+            graphTitle = "UDP Duplicates"
+            yLabel = 'Dupe count units'
+        elif (graphType == "udp_reord"):
+            yAxisData = self.dataset.udp_reord
+            graphTitle = "UDP Reorder Percentage"
+            yLabel = 'Reorder whatever units'
+        elif (graphType == "udp_losspercent"):
+            yAxisData = self.dataset.udp_losspercent
+            graphTitle = "UDP Loss Percentage"
+            yLabel = 'Loss Percent'
+        else:
+            print "Bad graph type"
+            return
         
-        pass
-    
-    def saveJitter(self,_OutputFilename):
+        #Yaxis data set, as well as title and axes.
         
-        pass
+        timeData = self.convertTimeList(self.dataset.dates)
+        
+        #fig = plt.figure()
+        #plot = fig.add_subplot(111,aspect='equal')
+        #plot.xlabel(xLabel)
+        #plot.ylabel(yLabel)
+        #plot.title(graphTitle)
+        #plot.plot(timeData,yAxisData)
+        #plot.savefig(outfilename)
+        plt.xlabel(xLabel)
+        plt.ylabel(yLabel)
+        plt.title(graphTitle)
+        plt.axis([min(timeData),max(timeData),min(yAxisData),max(yAxisData)])
+        plt.plot(timeData, yAxisData)
+        plt.savefig(outfilename)
+        print outfilename," saved"
+        #clear the plot
+        
     
-    
-    def setTitle(self,title):
-        self.title
-        pass
-    
-    def setAxisX(self,_label):
-        self.ylabel = _label
-        pass
-    
-    def setXisY(self,_label):
-        self.ylabel = _label
-        pass
+   
+        
