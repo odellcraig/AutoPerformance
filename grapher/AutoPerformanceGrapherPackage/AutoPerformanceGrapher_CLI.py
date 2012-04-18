@@ -8,6 +8,13 @@ from AutoPerformanceGrapher import dataset, grapher
 if __name__ == '__main__':
     print "hello"
     
+    d2 = dataset('tcp','/home/cody/AutoPerformance/data/Examples/Upstream/Summary_Tcp.csv')
+    g2 = grapher(d2)
+    
+    g2.saveGraph('tcp_mbps','/home/cody/test/TestTCP_mbps')
+    g2.saveGraph('tcp_rtt','/home/cody/test/TestTCP_rtt')
+    g2.saveGraph('tcp_jit','/home/cody/test/TestTCP_jit')
+    
     d = dataset('udp','/home/cody/AutoPerformance/data/Examples/Upstream/Summary_Udp.csv')
     g = grapher(d)
     
@@ -17,14 +24,9 @@ if __name__ == '__main__':
     g.saveGraph('udp_reord','/home/cody/test/Test_reord')
     g.saveGraph('udp_losspercent','/home/cody/test/Test_loss')
     
-    d2 = dataset('tcp','/home/cody/AutoPerformance/data/Examples/Upstream/Summary_Tcp.csv')
-    g2 = grapher(d2)
-    
-    g2.saveGraph('tcp_mbps','/home/cody/test/TestTCP_mbps')
-    g2.saveGraph('tcp_rtt','/home/cody/test/TestTCP_rtt')
-    g2.saveGraph('tcp_jit','/home/cody/test/TestTCP_jit')
+   
 
-
+    #Generate Reports here.
     
     print "Done"
     

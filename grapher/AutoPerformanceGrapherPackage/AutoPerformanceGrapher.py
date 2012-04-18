@@ -4,7 +4,8 @@ Created on Mar 5, 2012
 @author: cody
 '''
 import matplotlib.pyplot as plt
-
+import time
+import matplotlib.dates as md
 
 '''
 base class for both datasets
@@ -90,17 +91,20 @@ class grapher(object):
         Constructor
         '''
         self.dataset = _dataset 
+        
+        
+        
+   
      
     #converts the thrulay date format, into a format
     #compatible with the MatPlotlib 'plot_date' function   
     def convertTimeList(self,thrulayDates):
         #2012-03-18_21:25:07
         convertedList = []
-        days = 1
         for dateStr in thrulayDates:
-            convertedList.append(days)
-            days += 1
-            
+            parsedDateTime =  time.strptime(dateStr, "%Y-%m-%d_%H-%M-%S")
+            convertedList.append(parsedDateTime)
+        convertedList = md.date2num(convertedList)    
         return convertedList           
     
     def saveGraph(self,graphType,outfilename):
@@ -109,38 +113,51 @@ class grapher(object):
         yLabel = None
         graphTitle = None
         
+        #use to set sane axis limits
+        yAxisUpper = None
+        yAxisLower = 0 #will always be 0
+        
         if (graphType == "tcp_mbps"):
             yAxisData = self.dataset.tcp_mbps
-            graphTitle = "TCP Megabits per second VS time"
-            yLabel = 'Megabits'
+            graphTitle = "TCP Kilobits per second VS time"
+            yLabel = 'Throughput (Kilobits per second)'
+            yAxisUpper = 20480
         elif (graphType == "tcp_rtt"):
             yAxisData = self.dataset.tcp_rtt
             graphTitle = "TCP Round Trip Time"
-            yLabel = 'whatever rtt unit is'
+            yLabel = 'Round Trip Time (Seconds)'
+            yAxisUpper = 2*max(yAxisData)
         elif (graphType == "tcp_jit"):
             yAxisData = self.dataset.tcp_jit
             graphTitle = "TCP Jitter"
-            yLabel = 'whatever jitter unit is'
+            yLabel = 'Jitter (Seconds)'
+            yAxisUpper = 2*max(yAxisData)
         elif (graphType == "udp_mbps"):
             yAxisData = self.dataset.udp_mbps
             graphTitle = "UDP Megabits per second VS time"
-            yLabel = 'Megabits'
+            yLabel = 'Throughput (Megabits per second)'
+            yAxisUpper = 60
         elif (graphType == "udp_jit"):
             yAxisData = self.dataset.udp_jit
             graphTitle = "UDP Jitter"
-            yLabel = 'whatever Jitter unit is'
+            yLabel = 'Jitter (Seconds)'
+            yAxisUpper = 2*max(yAxisData)
         elif (graphType == "udp_dup"):
             yAxisData = self.dataset.udp_dup
             graphTitle = "UDP Duplicates"
-            yLabel = 'Dupe count units'
+            yLabel = 'Duplicate Percentage'
+            yAxisUpper = 100
         elif (graphType == "udp_reord"):
             yAxisData = self.dataset.udp_reord
             graphTitle = "UDP Reorder Percentage"
-            yLabel = 'Reorder whatever units'
+            yLabel = 'Reorder Percentage'
+            yAxisUpper = 100
         elif (graphType == "udp_losspercent"):
             yAxisData = self.dataset.udp_losspercent
             graphTitle = "UDP Loss Percentage"
-            yLabel = 'Loss Percent'
+            yLabel = 'Loss Percentage'
+            yAxisUpper = 100
+            
         else:
             print "Bad graph type"
             return
@@ -148,22 +165,16 @@ class grapher(object):
         #Yaxis data set, as well as title and axes.
         
         timeData = self.convertTimeList(self.dataset.dates)
-        
-        #fig = plt.figure()
-        #plot = fig.add_subplot(111,aspect='equal')
-        #plot.xlabel(xLabel)
-        #plot.ylabel(yLabel)
-        #plot.title(graphTitle)
-        #plot.plot(timeData,yAxisData)
-        #plot.savefig(outfilename)
         plt.xlabel(xLabel)
         plt.ylabel(yLabel)
         plt.title(graphTitle)
-        plt.axis([min(timeData),max(timeData),min(yAxisData),max(yAxisData)])
-        plt.plot(timeData, yAxisData)
+        plt.plot_date(timeData, yAxisData,'bo-',xdate=True,ydate=False)
+        #plt.plot(timeData, yAxisData,'bo-')
+        plt.axis([timeData[0],timeData[-1],yAxisLower,yAxisUpper])
         plt.savefig(outfilename)
         print outfilename," saved"
         #clear the plot
+        plt.clf()
         
     
    
