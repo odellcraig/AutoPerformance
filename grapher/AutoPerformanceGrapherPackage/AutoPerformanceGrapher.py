@@ -5,6 +5,7 @@ Created on Mar 5, 2012
 '''
 import matplotlib.pyplot as plt
 import time
+import datetime
 import matplotlib.dates as md
 
 '''
@@ -102,9 +103,10 @@ class grapher(object):
         #2012-03-18_21:25:07
         convertedList = []
         for dateStr in thrulayDates:
-            parsedDateTime =  time.strptime(dateStr, "%Y-%m-%d_%H-%M-%S")
-            convertedList.append(parsedDateTime)
-        convertedList = md.date2num(convertedList)    
+            pdt =  time.strptime(dateStr, "%Y-%m-%d_%H-%M-%S")
+            #convertedList.append(md.date2num(datetime.datetime(pdt.tm_year,pdt.tm_mon,pdt.tm_mday,pdt.tm_hour,pdt.tm_min,pdt.tm_sec)))
+            convertedList.append(datetime.datetime(pdt.tm_year,pdt.tm_mon,pdt.tm_mday,pdt.tm_hour,pdt.tm_min,pdt.tm_sec))
+
         return convertedList           
     
     def saveGraph(self,graphType,outfilename):
@@ -168,14 +170,21 @@ class grapher(object):
         plt.xlabel(xLabel)
         plt.ylabel(yLabel)
         plt.title(graphTitle)
-        plt.plot_date(timeData, yAxisData,'bo-',xdate=True,ydate=False)
-        #plt.plot(timeData, yAxisData,'bo-')
+        plt.fmt_xdata = md.DateFormatter("%Y-%m-%d_%H-%M-%S")
+        plt.plot_date(timeData, yAxisData,'bD-',xdate=True,ydate=False)
         plt.axis([timeData[0],timeData[-1],yAxisLower,yAxisUpper])
+        
+
+        fig = plt.gcf()
+        fig.autofmt_xdate()
+
         plt.savefig(outfilename)
         print outfilename," saved"
         #clear the plot
         plt.clf()
         
-    
-   
+    def generateReport(self,outDir):
+        timeStr = str(datetime.datetime.now())
+        header = '<html>'
+        footer = '</body></html>'
         
