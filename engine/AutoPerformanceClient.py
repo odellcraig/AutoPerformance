@@ -65,6 +65,7 @@ class AutoPerformanceClient(object):
         self.sock.close()
         
     def run(self):
+        print "Client is starting"
         #Create Configurations
         near,far = self.getConfigurations()
         engine = AutoPerformanceEngine(near)
