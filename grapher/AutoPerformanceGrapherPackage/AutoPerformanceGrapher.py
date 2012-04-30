@@ -121,9 +121,9 @@ class grapher(object):
         
         if (graphType == "tcp_mbps"):
             yAxisData = self.dataset.tcp_mbps
-            graphTitle = "TCP Kilobits per second VS time"
-            yLabel = 'Throughput (Kilobits per second)'
-            yAxisUpper = 20480
+            graphTitle = "TCP bits per second VS time"
+            yLabel = 'Throughput (Megabits per second)'
+            yAxisUpper = 40
         elif (graphType == "tcp_rtt"):
             yAxisData = self.dataset.tcp_rtt
             graphTitle = "TCP Round Trip Time"
